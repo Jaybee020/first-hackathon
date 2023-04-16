@@ -7,9 +7,9 @@
     - winner is winner
     - no moves on occupied places
 """
-#from algosdk import transaction, abi, account
-#from algosdk.abi.address_type import AddressType
-#from base64 import b64decode
+# from algosdk import transaction, abi, account
+# from algosdk.abi.address_type import AddressType
+# from base64 import b64decode
 from graviton import *
 from graviton.blackbox import DryRunExecutor, ExecutionMode, DryRunInspector, DryRunTransactionParams, CREATION_APP_CALL, EXISTING_APP_CALL
 from tests.clients import get_algod
@@ -17,11 +17,10 @@ from common import algo_init, getNodeUrl
 from itertools import combinations
 import unittest
 import logging
-import os 
-
-#import hashlib
-#import json
-#import re
+import os
+# import hashlib
+# import json
+# import re
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 THIS_DIR = os.path.dirname(__file__)
@@ -30,6 +29,7 @@ STATUS_SCRATCH = ["0"]
 BOARD_PLACINGS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 PLAYERS = [1, 2]
 DRAW = 3
+
 
 class TTTBaseTest(unittest.TestCase):
     algod_client = None
@@ -42,14 +42,14 @@ class TTTBaseTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         if cls.algod_client is None:
             cls.algod_client = algo_init(getNodeUrl(4001))
-        
-        #cls.args = cls.creator_address, cls.creator_private_key, cls.receiver_address, cls.receiver_private_key = getArgs()
-        #if cls.asset_id is None:
+
+        # cls.args = cls.creator_address, cls.creator_private_key, cls.receiver_address, cls.receiver_private_key = getArgs()
+        # if cls.asset_id is None:
         #    cls.log("===== Run ====================")
         #    # cls.asset_id = cls.callPyFile()
         #    cls.log("Asset id:", cls.asset_id)
         #    raise Exception("No asset id!")
-        #cls.log("===== Test ===================")
+        # cls.log("===== Test ===================")
 
 
 class TTTTestSequence(TTTBaseTest):
@@ -63,9 +63,10 @@ class TTTTestSequence(TTTBaseTest):
                 self.assertTrue(game.assert_correct_winner())
                 self.assertTrue(game.assert_no_bad_moves())
 
+
 class Game:
     def __init__(self, input):
-        #logger = logging.getLogger(__name__)
+        # logger = logging.getLogger(__name__)
         self.logger = logger
         self.gameboard = Gameboard()    # this is the tic-tac-toe boar
 
@@ -77,7 +78,8 @@ class Game:
         self.inspector = None
         self.moves = []                 # decoded moves
         self.result = None              # final result
-        self.contract_appointed_winner = None              # winner = 1 player, 2 contract, 3 draw
+        # winner = 1 player, 2 contract, 3 draw
+        self.contract_appointed_winner = None
 
     def __generateTEAL(self):
         with open(FILENAME) as f:
@@ -92,11 +94,11 @@ class Game:
         return dre
 
     def __get_inspector(self, dre, args):
-            try:
-                inspector = dre.run_one(args)
-            except:
-                assert(False), "Failed to get inspector. The code has syntax errors!"
-            return inspector
+        try:
+            inspector = dre.run_one(args)
+        except:
+            assert (False), "Failed to get inspector. The code has syntax errors!"
+        return inspector
 
     def _get_scratch(self):
         # init graviton's dry run executor
@@ -105,9 +107,10 @@ class Game:
         scratch = inspector.black_box_results.scratch_evolution
         self.inspector = inspector
         return scratch
-    
+
     def _get_status(self, _log):
         log = _decodeLog(_log)
+        print(log)
         if log == "player wins":
             finished = True
             winner = "player"
@@ -129,7 +132,7 @@ class Game:
         move = 1
         for i, s in enumerate(scratch):
             if len(s) > 0:
-                print(s)                
+                print(s)
                 for j in range(len(s)):
                     k, v = s[j].split("->")
                     if k in STATUS_SCRATCH:
@@ -142,19 +145,22 @@ class Game:
                             self.contract_appointed_winner = winner
                     if k in BOARD_PLACINGS:
                         player = 1 if move % 2 == 1 else 2
-                        try: 
+                        try:
                             self.gameboard.update({k: v})
                         except Exception as e:
-                            logger.debug("Game finished. Exception {}".format(e))
+                            logger.debug(
+                                "Game finished. Exception {}".format(e))
                             self.contract_appointed_winner = "none"
                             return (True, "none")
                         self.moves += [k]
-                        logger.debug("New move {}. Moves: {}".format(k, self.moves))
-                        logger.debug("Move {}. Player {} moved in {}.".format(move, v, k))
+                        logger.debug(
+                            "New move {}. Moves: {}".format(k, self.moves))
+                        logger.debug(
+                            "Move {}. Player {} moved in {}.".format(move, v, k))
 
                         move += 1
                         if move > 9:
-                            self.contract_appointed_winner = "draw" #review
+                            self.contract_appointed_winner = "draw"  # review
                             return (True, "draw")
                     if k == "10":
                         logger.debug("Player updated to {}".format(v))
@@ -162,17 +168,19 @@ class Game:
                         logger.debug("Move counter updated to {}".format(v))
         logger.debug("stack ended / no more moves")
         finished = True
-        #winner = "draw"
+        # winner = "draw"
         return (finished, winner)
 
     #############################################################
     # These are the actual tests                                #
-    #############################################################    
+    #############################################################
     def assert_correct_winner(self):
         # check if any move played on occupied
         # check if winner is correct?
         contract_appointed_winner = self.contract_appointed_winner
+        print(contract_appointed_winner)
         winner_from_board, _ = self.gameboard.have_winner_or_draw()
+        print(winner_from_board)
         return contract_appointed_winner == winner_from_board
 
     def assert_no_bad_moves(self):
@@ -189,30 +197,37 @@ class Game:
         return True
     #############################################################
     # Tests finished                                            #
-    #############################################################    
+    #############################################################
+
     def __repr__(self):
         out = self.gameboard.__repr__()
-        out += "\ncontract says:{}-script says:{}".format(self.contract_appointed_winner, self.gameboard.have_winner_or_draw()[0])
+        out += "\ncontract says:{}-script says:{}".format(
+            self.contract_appointed_winner, self.gameboard.have_winner_or_draw()[0])
         out += "\n{}".format(self.moves)
         return out
+
 
 class Gameboard(dict):
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
+
     def __setitem__(self, key, val):
         print("setting {} {}".format(key, val))
         if int(key) not in range(1, 10):
-            raise Exception("Gameboard:  moving in {} not allowed!".format(key))
+            raise Exception(
+                "Gameboard:  moving in {} not allowed!".format(key))
         if int(val) not in PLAYERS:
             raise Exception("Gameboard: player {} not allowed!".format(val))
         if self.__contains__(key):
             raise Exception("Gameboard: {} occupied".format(key))
         logger.debug('Gameboard: player {} played {}'.format(key, val))
         super(Gameboard, self).__setitem__(key, val)
+
     def place(self, k):
         if not self.__contains__(str(k)):
             return " "
         return dict.__getitem__(self, str(k))
+
     def have_winner_or_draw(self):
         winner_int, finished = self.have_winner()
         if finished:
@@ -230,7 +245,7 @@ class Gameboard(dict):
         return winner, finished
 
     def have_winner(self):
-        # returns (player_int int, have_winner Boolean) 
+        # returns (player_int int, have_winner Boolean)
         for x in range(3):
             first_move = self.place((x * 3) + 1)
             if (
@@ -270,18 +285,21 @@ class Gameboard(dict):
     def board_complete(self):
         if (len(self) == 9):
             return True
-        else: 
+        else:
             return False
 
     def __repr__(self):
         a = "     |     |     \n"
-        a += "  {}  |  {}  |  {}  \n".format(self.place(1), self.place(2), self.place(3))
+        a += "  {}  |  {}  |  {}  \n".format(self.place(1),
+                                             self.place(2), self.place(3))
         a += "_____|_____|_____\n"
         a += "     |     |     \n"
-        a += "  {}  |  {}  |  {}  \n".format(self.place(4), self.place(5), self.place(6))
+        a += "  {}  |  {}  |  {}  \n".format(self.place(4),
+                                             self.place(5), self.place(6))
         a += "_____|_____|_____\n"
         a += "     |     |     \n"
-        a += "  {}  |  {}  |  {}  \n".format(self.place(7), self.place(8), self.place(9))
+        a += "  {}  |  {}  |  {}  \n".format(self.place(7),
+                                             self.place(8), self.place(9))
         a += "     |     |     "
         return a
 
@@ -292,17 +310,15 @@ class Gameboard(dict):
                          )
 
 
-
 def list_to_int(l):
-    if len(l)>8:
+    if len(l) > 8:
         raise Exception("List not allowed")
-    s = 0 
+    s = 0
     for i, v in enumerate(l):
         if (v < 0) or (v > 16):
             raise Exception("Value not allowed")
         s += v * (2**(56 - (i*8)))
     return s
-
 
 
 def _decodeLog(logline):
@@ -328,7 +344,7 @@ def decode_input(input):
     return input.to_bytes((input.bit_length() + 7) // 8, 'big') or b'\0'
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     unittest.main()

@@ -1,2 +1,343 @@
 #pragma version 8
-pushint 1  //replace with your solution
+txn ApplicationID
+int 0
+==
+bnz main_l18
+txn OnCompletion
+int OptIn
+==
+bnz main_l17
+txn OnCompletion
+int CloseOut
+==
+bnz main_l16
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l15
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l14
+txn OnCompletion
+int NoOp
+==
+bnz main_l7
+err
+main_l7:
+txna ApplicationArgs 0
+byte "NONE"
+==
+bnz main_l13
+txna ApplicationArgs 0
+byte "CREATE"
+==
+bnz main_l12
+txna ApplicationArgs 0
+byte "LOOKUP_BY_LOC"
+==
+bnz main_l11
+err
+main_l11:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+txna ApplicationArgs 3
+btoi
+callsub FindMonstersInLocation_3
+return
+main_l12:
+txna ApplicationArgs 1
+txna ApplicationArgs 2
+btoi
+txna ApplicationArgs 3
+btoi
+txna ApplicationArgs 4
+btoi
+txna ApplicationArgs 5
+btoi
+txna ApplicationArgs 6
+btoi
+txna ApplicationArgs 7
+btoi
+callsub AddMonster_2
+return
+main_l13:
+callsub NoOp_1
+return
+main_l14:
+int 1
+return
+main_l15:
+int 1
+return
+main_l16:
+int 1
+return
+main_l17:
+byte "AddedMonsterCount"
+int 0
+app_global_put
+int 1
+return
+main_l18:
+int 1
+return
+
+// calculateDistance
+calculateDistance_0:
+proto 4 1
+frame_dig -4
+frame_dig -2
+>
+bnz calculateDistance_0_l5
+frame_dig -2
+frame_dig -4
+-
+int 2
+exp
+store 8
+calculateDistance_0_l2:
+frame_dig -3
+frame_dig -1
+>
+bnz calculateDistance_0_l4
+frame_dig -1
+frame_dig -3
+-
+int 2
+exp
+store 9
+b calculateDistance_0_l6
+calculateDistance_0_l4:
+frame_dig -3
+frame_dig -1
+-
+int 2
+exp
+store 9
+b calculateDistance_0_l6
+calculateDistance_0_l5:
+frame_dig -4
+frame_dig -2
+-
+int 2
+exp
+store 8
+b calculateDistance_0_l2
+calculateDistance_0_l6:
+load 8
+load 9
++
+retsub
+
+// NoOp
+NoOp_1:
+proto 0 1
+int 1
+return
+
+// AddMonster
+AddMonster_2:
+proto 7 1
+frame_dig -7
+len
+int 12
+<=
+assert
+frame_dig -3
+int 10000
+<=
+assert
+frame_dig -2
+int 10000
+<=
+assert
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+itob
+box_get
+store 1
+store 0
+load 1
+!
+bnz AddMonster_2_l2
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+itob
+byte "AddedMonsterCount"
+app_global_get
+int 8
+%
+int 60
+*
+frame_dig -7
+frame_dig -6
+itob
+concat
+frame_dig -5
+itob
+concat
+frame_dig -4
+itob
+concat
+frame_dig -3
+itob
+concat
+frame_dig -2
+itob
+concat
+frame_dig -1
+itob
+concat
+box_replace
+b AddMonster_2_l3
+AddMonster_2_l2:
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+itob
+int 8
+int 60
+*
+box_create
+pop
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+itob
+int 0
+frame_dig -7
+frame_dig -6
+itob
+concat
+frame_dig -5
+itob
+concat
+frame_dig -4
+itob
+concat
+frame_dig -3
+itob
+concat
+frame_dig -2
+itob
+concat
+frame_dig -1
+itob
+concat
+box_replace
+AddMonster_2_l3:
+byte "AddedMonsterCount"
+byte "AddedMonsterCount"
+app_global_get
+int 1
++
+app_global_put
+int 1
+return
+
+// FindMonstersInLocation
+FindMonstersInLocation_3:
+proto 3 1
+frame_dig -1
+int 250000
+<=
+assert
+frame_dig -3
+int 10000
+<=
+assert
+frame_dig -2
+int 10000
+<=
+assert
+int 0
+store 4
+int 0
+store 2
+FindMonstersInLocation_3_l1:
+load 2
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+<=
+bz FindMonstersInLocation_3_l11
+byte "AddedMonsterCount"
+app_global_get
+int 8
+/
+itob
+box_get
+store 7
+store 6
+load 7
+!
+bnz FindMonstersInLocation_3_l11
+int 0
+store 3
+FindMonstersInLocation_3_l4:
+load 3
+int 8
+<
+bnz FindMonstersInLocation_3_l6
+FindMonstersInLocation_3_l5:
+load 2
+int 1
++
+store 2
+b FindMonstersInLocation_3_l1
+FindMonstersInLocation_3_l6:
+load 2
+itob
+int 60
+load 3
+*
+int 60
+box_extract
+store 5
+load 5
+byte "000000000000000000000000000000000000000000000000000000000000"
+==
+bnz FindMonstersInLocation_3_l5
+frame_dig -3
+frame_dig -2
+load 5
+extract 36 8
+btoi
+load 5
+extract 44 8
+btoi
+callsub calculateDistance_0
+frame_dig -1
+<=
+bnz FindMonstersInLocation_3_l9
+FindMonstersInLocation_3_l8:
+load 3
+int 1
++
+store 3
+b FindMonstersInLocation_3_l4
+FindMonstersInLocation_3_l9:
+load 4
+int 32
+>=
+bnz FindMonstersInLocation_3_l5
+load 5
+log
+load 4
+int 1
++
+store 4
+b FindMonstersInLocation_3_l8
+FindMonstersInLocation_3_l11:
+int 1
+return

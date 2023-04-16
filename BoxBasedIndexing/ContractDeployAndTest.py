@@ -9,13 +9,15 @@ from base64 import b64decode
 from algosdk.logic import *
 import random
 
-APPROVAL_SRC = os.path.join('BoxBasedIndexing', 'contracts', "BoxBasedDB_ApprovalProgram.teal")
-CLEARSTATE_SRC = os.path.join('BoxBasedIndexing', 'contracts', "BoxBasedDB_ClearStateProgram.teal")
+APPROVAL_SRC = os.path.join(
+    'BoxBasedIndexing', 'contracts', "BoxBasedDB_ApprovalProgram.teal")
+CLEARSTATE_SRC = os.path.join(
+    'BoxBasedIndexing', 'contracts', "BoxBasedDB_ClearStateProgram.teal")
 
 
-X_ev=[4534,460,714,5587,1275,3440,1690,3517,8634,4109]
+X_ev = [4534, 460, 714, 5587, 1275, 3440, 1690, 3517, 8634, 4109]
 
-Y_ev=[2574,9931,4646,3162,243,6631,3156,7162,1937,1427]
+Y_ev = [2574, 9931, 4646, 3162, 243, 6631, 3156, 7162, 1937, 1427]
 
 
 def compileTEAL(client, code):
@@ -24,7 +26,8 @@ def compileTEAL(client, code):
 
 
 def fundApp(client, sender: sandbox.SandboxAccount, AppAddr: str, Ammount):
-    txn = transaction.PaymentTxn(sender.address, sp=client.suggested_params(), receiver=AppAddr, amt=Ammount)
+    txn = transaction.PaymentTxn(
+        sender.address, sp=client.suggested_params(), receiver=AppAddr, amt=Ammount)
     signedTxn = txn.sign(sender.private_key)
     txid = client.send_transaction(signedTxn)
     wait_for_confirmation(client, signedTxn.get_txid())
@@ -143,7 +146,8 @@ def FindMonsterByLocation(AppID, lat, long):
 
     for i in range(0, len(txn_list) - 1):
         wait_for_confirmation(client, txn_list[i].get_txid())
-    finalTxnResp = wait_for_confirmation(client, txn_list[-1].get_txid())
+    finalTxnResp = wait_for_confirmation(
+        client, txn_list[-1].get_txid(), 30000)
     return finalTxnResp
 
 
@@ -162,12 +166,13 @@ def AddBatchOfMonsters(X_ev, Y_ev, AppID):
 
         ev_data = {
             "name": str(name),
-            "a": int(random.randint(0, 100)), "d": int(random.randint(0,100)), "hp": int(random.randint(0, 100)),
+            "a": int(random.randint(0, 100)), "d": int(random.randint(0, 100)), "hp": int(random.randint(0, 100)),
             "X": int(x), "Y": int(y), "ASAid": n}
         monsters.append(ev_data)
 
         try:
-            AddMonster(AppID, ev_data["name"], ev_data["a"], ev_data["d"], ev_data["hp"], ev_data["X"], ev_data["Y"], ev_data["ASAid"])
+            AddMonster(AppID, ev_data["name"], ev_data["a"], ev_data["d"],
+                       ev_data["hp"], ev_data["X"], ev_data["Y"], ev_data["ASAid"])
         except:
             assert False, "Adding monster failed!"
         n = n + 1
@@ -191,7 +196,6 @@ class BoxTest(unittest.TestCase):
 
             logResult = b64decode(txnResponse["logs"][0])
             logName = str(logResult[0:12], encoding="utf-8")
-
             self.assertEqual(testedMonsters[h]["name"], logName)
             for name, slice_from, slice_to in [
                 ('a', 12, 20),
@@ -201,7 +205,7 @@ class BoxTest(unittest.TestCase):
                 ('Y', 44, 52),
                 ('ASAid', 52, 60),
             ]:
-                item = int.from_bytes(logResult[slice_from:slice_to])
+                item = int.from_bytes(logResult[slice_from:slice_to], "big")
                 self.assertEqual(testedMonsters[h][name], item)
 
 
@@ -214,7 +218,6 @@ class TestPrelimWithFewMonsters(BoxTest):
     def test_MonstersLoadedCorrectly(self):
         print("Checking if added monsters are loaded...")
         self.check_MonstersLoadedCorrectly(self.AllMonsters)
-
 
 
 if __name__ == "__main__":

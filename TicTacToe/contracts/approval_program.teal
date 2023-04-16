@@ -1,0 +1,455 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l12
+txn OnCompletion
+int OptIn
+==
+bnz main_l11
+txn OnCompletion
+int CloseOut
+==
+bnz main_l10
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l9
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l8
+txn OnCompletion
+int NoOp
+==
+bnz main_l7
+err
+main_l7:
+int 1
+return
+main_l8:
+int 1
+return
+main_l9:
+int 1
+return
+main_l10:
+int 1
+return
+main_l11:
+int 1
+return
+main_l12:
+byte "ContractMovelist"
+int 1
+itob
+int 5
+itob
+concat
+int 9
+itob
+concat
+int 3
+itob
+concat
+app_global_put
+txna ApplicationArgs 0
+callsub playGame_5
+return
+int 1
+return
+
+// isValidMove
+isValidMove_0:
+proto 1 1
+frame_dig -1
+loads
+int 0
+==
+bnz isValidMove_0_l2
+int 0
+retsub
+isValidMove_0_l2:
+int 1
+retsub
+
+// registerMove
+registerMove_1:
+proto 2 0
+frame_dig -2
+frame_dig -1
+stores
+retsub
+
+// getPlayer
+getPlayer_2:
+proto 1 1
+frame_dig -1
+int 1
++
+int 2
+%
+int 0
+==
+bnz getPlayer_2_l2
+int 2
+retsub
+getPlayer_2_l2:
+int 1
+retsub
+
+// calculateNextMove
+calculateNextMove_3:
+proto 2 1
+byte ""
+store 13
+int 1
+store 12
+calculateNextMove_3_l1:
+load 12
+int 9
+<=
+bnz calculateNextMove_3_l5
+load 13
+extract 0 8
+btoi
+load 13
+extract 8 8
+btoi
+load 13
+extract 16 8
+btoi
+load 13
+extract 24 8
+btoi
+load 13
+extract 32 8
+btoi
+load 13
+extract 40 8
+btoi
+load 13
+extract 48 8
+btoi
+load 13
+extract 56 8
+btoi
+load 13
+extract 64 8
+btoi
+int 3
+int 1
+*
+callsub checkplayerwin_4
+bnz calculateNextMove_3_l4
+frame_dig -1
+retsub
+calculateNextMove_3_l4:
+frame_dig -2
+retsub
+calculateNextMove_3_l5:
+frame_dig -2
+load 12
+==
+bnz calculateNextMove_3_l10
+frame_dig -1
+load 12
+==
+bnz calculateNextMove_3_l9
+load 13
+load 12
+loads
+itob
+concat
+store 13
+calculateNextMove_3_l8:
+load 12
+int 1
++
+store 12
+b calculateNextMove_3_l1
+calculateNextMove_3_l9:
+load 13
+int 2
+itob
+concat
+store 13
+b calculateNextMove_3_l8
+calculateNextMove_3_l10:
+load 13
+int 1
+itob
+concat
+store 13
+b calculateNextMove_3_l8
+
+// check_player_win
+checkplayerwin_4:
+proto 10 1
+frame_dig -10
+frame_dig -9
++
+frame_dig -8
++
+frame_dig -1
+==
+frame_dig -10
+frame_dig -9
+==
+&&
+frame_dig -9
+frame_dig -8
+==
+&&
+frame_dig -7
+frame_dig -6
++
+frame_dig -5
++
+frame_dig -1
+==
+frame_dig -7
+frame_dig -6
+==
+&&
+frame_dig -6
+frame_dig -5
+==
+&&
+||
+frame_dig -4
+frame_dig -3
++
+frame_dig -2
++
+frame_dig -1
+==
+frame_dig -4
+frame_dig -3
+==
+&&
+frame_dig -3
+frame_dig -2
+==
+&&
+||
+frame_dig -10
+frame_dig -7
++
+frame_dig -4
++
+frame_dig -1
+==
+frame_dig -10
+frame_dig -7
+==
+&&
+frame_dig -7
+frame_dig -4
+==
+&&
+||
+frame_dig -9
+frame_dig -6
++
+frame_dig -3
++
+frame_dig -1
+==
+frame_dig -6
+frame_dig -9
+==
+&&
+frame_dig -9
+frame_dig -3
+==
+&&
+||
+frame_dig -8
+frame_dig -5
++
+frame_dig -2
++
+frame_dig -1
+==
+frame_dig -8
+frame_dig -5
+==
+&&
+frame_dig -5
+frame_dig -2
+==
+&&
+||
+frame_dig -10
+frame_dig -6
++
+frame_dig -2
++
+frame_dig -1
+==
+frame_dig -10
+frame_dig -6
+==
+&&
+frame_dig -6
+frame_dig -2
+==
+&&
+||
+frame_dig -7
+frame_dig -9
++
+frame_dig -5
++
+frame_dig -1
+==
+frame_dig -7
+frame_dig -9
+==
+&&
+frame_dig -9
+frame_dig -5
+==
+&&
+||
+bnz checkplayerwin_4_l2
+int 0
+retsub
+checkplayerwin_4_l2:
+frame_dig -1
+retsub
+
+// playGame
+playGame_5:
+proto 1 1
+byte "playing"
+store 0
+int 0
+store 1
+int 0
+store 2
+int 0
+store 3
+int 0
+store 4
+int 0
+store 5
+int 0
+store 6
+int 0
+store 7
+int 0
+store 8
+int 0
+store 9
+int 1
+store 10
+playGame_5_l1:
+load 10
+int 9
+<=
+bnz playGame_5_l4
+playGame_5_l2:
+load 0
+byte "playing"
+==
+bz playGame_5_l15
+byte "draw"
+store 0
+b playGame_5_l15
+playGame_5_l4:
+load 10
+callsub getPlayer_2
+int 1
+==
+bnz playGame_5_l14
+frame_dig -1
+load 10
+int 2
+/
+int 1
+extract3
+btoi
+byte "ContractMovelist"
+app_global_get
+load 10
+int 2
+-
+int 2
+/
+int 8
+*
+int 8
+extract3
+btoi
+callsub calculateNextMove_3
+store 11
+playGame_5_l6:
+load 11
+callsub isValidMove_0
+!
+bnz playGame_5_l13
+load 11
+load 10
+callsub getPlayer_2
+callsub registerMove_1
+load 10
+int 5
+>=
+bnz playGame_5_l9
+playGame_5_l8:
+load 10
+int 1
++
+store 10
+b playGame_5_l1
+playGame_5_l9:
+load 1
+load 2
+load 3
+load 4
+load 5
+load 6
+load 7
+load 8
+load 9
+int 3
+load 10
+callsub getPlayer_2
+*
+callsub checkplayerwin_4
+bz playGame_5_l8
+int 3
+load 10
+callsub getPlayer_2
+*
+int 3
+==
+bnz playGame_5_l12
+byte "contract won"
+store 0
+b playGame_5_l2
+playGame_5_l12:
+byte "player won"
+store 0
+b playGame_5_l2
+playGame_5_l13:
+byte "bad move"
+store 0
+b playGame_5_l2
+playGame_5_l14:
+frame_dig -1
+load 10
+int 1
+-
+int 2
+/
+int 1
+extract3
+btoi
+store 11
+b playGame_5_l6
+playGame_5_l15:
+int 1
+return

@@ -17,7 +17,7 @@ def algo_init(algod_address=None):
 
 def getNodeUrl(port):
     host = os.environ.get("ALGOD_HOST", DEFAULT_HOST)
-    return "http://%s:%d"%(host, port)
+    return "http://%s:%d" % (host, port)
 
 
 def getArgs():
